@@ -1,0 +1,10 @@
+cmake_minimum_required(VERSION 3.5.1)
+project(Detector)
+set(Detector_VERSION_MAJOR 0)
+set(Detector_VERSION_MINOR 1)
+set(CMAKE_CXX_STANDARD 11)
+include_directories("/usr/local/include" "/usr/local/cuda/include")
+link_directories("/usr/local/lib" "/usr/local/share/OpenCV/3rdparty/lib" "/usr/local/cuda/lib64")
+add_executable(Detector Detector.cpp)
+#pkg-config --static --cflags --libs opencv
+target_link_libraries(Detector -lopencv_cudabgsegm -lopencv_cudaobjdetect -lopencv_cudastereo -lopencv_shape -lopencv_stitching -lopencv_cudafeatures2d -lopencv_superres -lopencv_cudacodec -lopencv_videostab -lopencv_cudaoptflow -lopencv_cudalegacy -lopencv_calib3d -lopencv_features2d -lopencv_objdetect -lopencv_highgui -lopencv_videoio -lopencv_photo -lopencv_imgcodecs -lopencv_cudawarping -lopencv_cudaimgproc -lopencv_cudafilters -lopencv_video -lopencv_ml -lopencv_imgproc -lopencv_flann -lopencv_cudaarithm -lopencv_core -lopencv_cudev -llibwebp -lIlmImf -lippicv -lpng -lz -ltiff -ljasper -ljpeg -lgtk-x11-2.0 -lgdk-x11-2.0 -lpangocairo-1.0 -latk-1.0 -lcairo -lgdk_pixbuf-2.0 -lgio-2.0 -lpangoft2-1.0 -lpango-1.0 -lgobject-2.0 -lfontconfig -lfreetype -lgthread-2.0 -lglib-2.0 -ldc1394 -lavcodec-ffmpeg -lavformat-ffmpeg -lavutil-ffmpeg -lswscale-ffmpeg -lstdc++ -ldl -lm -lpthread -lrt -lcudart -lnppc -lnppi -lnpps -lcufft)

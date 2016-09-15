@@ -27,3 +27,8 @@
 *.exe
 *.out
 *.app
+
+# Proyecto
+build/
+data/
+.clang_complete
