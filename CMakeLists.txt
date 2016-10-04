@@ -5,6 +5,6 @@ set(Detector_VERSION_MINOR 3)
 set(CMAKE_CXX_STANDARD 11)
 include_directories("/usr/local/include" "include")
 link_directories("/usr/local/lib" "/usr/local/share/OpenCV/3rdparty/lib")
-add_executable(nider Detector.cpp Calibracion.cpp Utilidades.cpp)
+add_executable(nider Detector.cpp Calibracion.cpp Utilidades.cpp Nider.cpp)
 #pkg-config --static --cflags --libs opencv
 target_link_libraries(nider -lopencv_shape -lopencv_stitching -lopencv_objdetect -lopencv_superres -lopencv_videostab -lopencv_calib3d -lopencv_features2d -lopencv_highgui -lopencv_videoio -lopencv_imgcodecs -lopencv_video -lopencv_photo -lopencv_ml -lopencv_imgproc -lopencv_flann -lopencv_core -lpng -lz -lgtk-x11-2.0 -lgdk-x11-2.0 -lpangocairo-1.0 -latk-1.0 -lcairo -lgdk_pixbuf-2.0 -lgio-2.0 -lpangoft2-1.0 -lpango-1.0 -lgobject-2.0 -lfontconfig -lfreetype -lgthread-2.0 -lglib-2.0 -lavcodec-ffmpeg -lavformat-ffmpeg -lavutil-ffmpeg -lswscale-ffmpeg -lbz2 -ldl -lm -lpthread -lrt)
