@@ -22,9 +22,11 @@ namespace nider
             std::vector<cv::Point2f> selected_points;
             cv::Size output_size;
         };
-        CalibracionStruct Calibrar();
+        void Calibrar();
+        CalibracionStruct getCalibracionData();
         calibracion(std::string video_path);
     private:
+        CalibracionStruct CalibracionData;
         std::string video_path;
         void Calcular_Transformation_Matrix(CalibracionStruct &data);
         void Ordenar_Puntos_SentidoReloj(std::vector<cv::Point2f> &points);

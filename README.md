@@ -4,7 +4,7 @@
 
 ### Dependencias
 
-#### Cuda (Opcional)
+#### CUDA (Opcional)
 
 1. Asegúrate de que usas la última versión de los drivers oficiales de nvidia **(version >= 365.35)**
 
@@ -31,11 +31,11 @@
 
       ``make && sudo make install``
 
-### Obtener Nider
+## Obtener Nider
 
 1. Clona el [repositorio](https://github.com/capgadsx/nider) desde Github
 
-### Compilar Nider
+## Compilar Nider
 
 1. Un consejo para mantener el orden en el directorio es crear dos carpetas: **build** y **data**, en *build* se almacenaran los ficheros necesarios para compilar el proyecto y en *data* se almacenaran los datos necesarios para ejecutarlo
 
@@ -48,6 +48,6 @@
 
 3. ¡Listo!. Si se instalaron todas las dependencias correctamente no debería haber problemas al compilar el proyecto y deberías poder ver un ejecutable llamado *nider* en la carpeta *build*
 
-### Usar Nider
+## Usar Nider
 
 *PRÓXIMAMENTE* :+1: :tada:

@@ -12,15 +12,19 @@ namespace nider
     class detector
     {
     public:
-        detector(std::string video_path, nider::sistema &sistema_ref);
+        detector(std::string video_path, nider::sistema &sistema_ref, nider::calibracion &calibrador_ref);
         void Iniciar(bool debug);
         void LoopPrincipalDeteccion();
     private:
         nider::sistema &sistema_ref;
+        nider::calibracion &calibrador_ref;
         std::string video_path;
         cv::VideoCapture video_input;
         cv::Mat currentFrame;
         cv::Mat nextFrame;
+        cv::Mat frameDifference;
+        cv::Mat frameDifferenceThreshold;
+        cv::Mat structuringElement5x5;
     };
 }
 

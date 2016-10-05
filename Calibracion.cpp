@@ -6,7 +6,7 @@ namespace nider
     {
         video_path = path;
     }
-    calibracion::CalibracionStruct calibracion::Calibrar()
+    void calibracion::Calibrar()
     {
         cv::Mat frame;
         cv::VideoCapture video_input;
@@ -34,7 +34,12 @@ namespace nider
         cv::destroyWindow("Calibrar");
         Ordenar_Puntos_SentidoReloj(data.selected_points);
         Calcular_Transformation_Matrix(data);
-        return data;
+        CalibracionData = data;
+    }
+
+    calibracion::CalibracionStruct calibracion::getCalibracionData()
+    {
+        return CalibracionData;
     }
 
     void calibracion::MouseCallbackFunc(int type, int x, int y, int flags, void* data)
