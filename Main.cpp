@@ -6,24 +6,8 @@ int main(int argc, char const *argv[])
     nider::sistema sistema;
     nider::calibracion calibrador(video_path);
     auto DatosCalibracion = calibrador.Calibrar();
-    cv::VideoCapture video_input;
-    video_input.open("../data/video_test.mp4");
-    cv::Mat frame;
-    sistema.Iniciar(false);
-    while(true)
-    {
-        sistema.ActualizarTiempoInicio(cv::getTickCount());
-        video_input >> frame;
-        if(frame.empty())
-        {
-            std::cout << "\nFin del Video" << std::endl;
-            break;
-        }
-        cv::imshow("Input",frame);
-        cv::warpPerspective(frame,frame,DatosCalibracion.transformation_matrix,DatosCalibracion.output_size);
-        cv::imshow("Output",frame);
-        cv::waitKey(1);
-        sistema.ImprimirFPS();
-    }
+    nider::detector detector(video_path,sistema);
+    detector.Iniciar(false);
+    detector.LoopPrincipalDeteccion();
     return EXIT_SUCCESS;
 }

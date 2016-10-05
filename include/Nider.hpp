@@ -14,7 +14,6 @@ namespace nider
     class sistema
     {
     public:
-        void Iniciar(bool debug);
         void ImprimirFPS();
         void ActualizarTiempoInicio(int64_t time);
     private:

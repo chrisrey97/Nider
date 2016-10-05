@@ -11,6 +11,12 @@ namespace nider
         cv::Mat frame;
         cv::VideoCapture video_input;
         video_input.open(video_path);
+        if(!video_input.isOpened())
+        {
+            video_input.release();
+            std::cout << "ERROR: No existe el archivo" << std::endl;
+            std::exit(EXIT_FAILURE);
+        }
         video_input >> frame;
         video_input.release();
         calibracion::CalibracionStruct data;
