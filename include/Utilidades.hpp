@@ -11,6 +11,9 @@ namespace nider
     public:
         double Calcular_Distancia_Puntos2d(cv::Point2f Q, cv::Point2f P);
         double Calcular_Distancia_Punto_Origen(cv::Point2f Q);
+        static const cv::Scalar COLOR_NEGRO;
+        static const cv::Scalar COLOR_BLANCO;
+        static const cv::Scalar COLOR_ROJO;
     };
 }
 

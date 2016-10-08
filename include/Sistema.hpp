@@ -1,5 +1,14 @@
-#ifndef NIDER_HEADER
-#define NIDER_HEADER
+#ifndef SISTEMA_HEADER
+#define SISTEMA_HEADER
+
+
+#ifndef NIDER_VERSION_MAYOR
+#define NIDER_VERSION_MAYOR -1
+#endif
+
+#ifndef NIDER_VERSION_MENOR
+#define NIDER_VERSION_MENOR -1
+#endif
 
 #include <iostream>
 #include <vector>
@@ -14,6 +23,7 @@ namespace nider
     class sistema
     {
     public:
+        void ImprimirInfoNider();
         void ImprimirFPS();
         void ActualizarTiempoInicio(int64_t time);
     private:
