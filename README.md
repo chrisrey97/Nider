@@ -1,4 +1,4 @@
-# Nider
+# Nider [![Build Status](https://travis-ci.org/capgadsx/Nider.svg?branch=master)](https://travis-ci.org/capgadsx/Nider)
 
 ## Construir Nider
 

@@ -1,0 +1,41 @@
+language: cpp
+sudo: requiered
+dist: trusty
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - g++-5
+      - cmake
+      - libgtk2.0-dev
+      - pkg-config
+      - libavcodec-dev
+      - libavformat-dev
+      - libswscale-dev
+      - libbz2-dev
+      - libwebp-dev
+env: CXX=g++-5
+install:
+  - wget https://cmake.org/files/v3.5/cmake-3.5.1.tar.gz
+  - tar xzf cmake-3.5.1.tar.gz
+  - cd cmake-3.5.1
+  - ./bootstrap --no-qt-gui --parallel=2
+  - make -j2
+  - sudo make install
+  - cd ..
+  - git clone -b master git@github.com:opencv/opencv
+  - cd opencv
+  - git reset --hard e0435d3b8a871b54f9a78bb8662e47e47c36b05c
+  - cmake ./ -DBUILD_EXAMPLES=OFF -DBUILD_TESTS=OFF -DBUILD_PERF_TESTS=OFF -DBUILD_opencv_python2=OFF -DBUILD_opencv_python3=OFF
+  - make -j2
+  - sudo make install
+  - cd ../
+script:
+  - mkdir build
+  - cd build
+  - cmake ../ -DWITH_CUDA=OFF
+  - make -j2
+branches:
+  only:
+    - master
