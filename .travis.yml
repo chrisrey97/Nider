@@ -24,7 +24,7 @@ install:
   - make -j2
   - sudo make install
   - cd ..
-  - git clone -b master git@github.com:opencv/opencv
+  - git clone -b master https://github.com/opencv/opencv.git
   - cd opencv
   - git reset --hard e0435d3b8a871b54f9a78bb8662e47e47c36b05c
   - cmake ./ -DBUILD_EXAMPLES=OFF -DBUILD_TESTS=OFF -DBUILD_PERF_TESTS=OFF -DBUILD_opencv_python2=OFF -DBUILD_opencv_python3=OFF
