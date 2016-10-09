@@ -24,7 +24,7 @@
 	* Ejecuta en el directorio de OpenCV el siguiente comando:
 	* Opcional: Si vas a usar CUDA añade al comando la siguiente *flag:* **-DWITH_CUDA=ON**
 
-      ``cmake -DBUILD_EXAMPLES=OFF -DBUILD_TESTS=OFF -DBUILD_PERF_TESTS=OFF -DBUILD_opencv_python2=OFF -DBUILD_opencv_python3=OFF``
+      ``cmake -DWITH_IPP=OFF -DBUILD_EXAMPLES=OFF -DBUILD_TESTS=OFF -DBUILD_PERF_TESTS=OFF -DBUILD_opencv_python2=OFF -DBUILD_opencv_python3=OFF``
 
 4. Compila e Instala OpenCV
   * Ejecuta en el directorio de OpenCV el siguiente comando:
