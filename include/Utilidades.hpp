@@ -14,6 +14,7 @@ namespace nider
         static const cv::Scalar COLOR_NEGRO;
         static const cv::Scalar COLOR_BLANCO;
         static const cv::Scalar COLOR_ROJO;
+        static const cv::Scalar COLOR_VERDE;
     };
 }
 

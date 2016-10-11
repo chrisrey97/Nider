@@ -28,6 +28,7 @@ namespace nider
             cv::namedWindow("Contornos 2 (CONVEX_HULLS)",cv::WINDOW_NORMAL);
             cv::namedWindow("Procesar Contornos",cv::WINDOW_NORMAL);
         }
+        primerLoop = true;
     }
 
     void detector::LoopPrincipalDeteccion()
@@ -50,9 +51,10 @@ namespace nider
             TransformacionesMorfologicasDiferenciaFrames(currentFrame,nextFrame);
             DetectarContornosDiferenciasFrames(deteccionesFrames.clone());
             ProcesarContornosDetectados();
+            ProcesarAutosDetectados();
             GenerarOutputFrame();
             cv::imshow("Output",outputFrame);
-            cv::waitKey(1);
+            cv::waitKey(DETECTOR_MAIN_LOOP_SLEEP_TIME_FRAME_MS);
             sistema_ref.ImprimirFPS();
         }
     }
@@ -66,42 +68,55 @@ namespace nider
 
     void detector::ProcesarContornosDetectados()
     {
-        autos_detectados.clear();
-        autos_detectados.resize(convex_hulls.size());
+        autos_detectados_frame.clear();
+        autos_detectados_frame.resize(convex_hulls.size());
         for(auto &contorno : convex_hulls)
         {
             nider::seguimiento::Auto candidato = nider::seguimiento::Auto(contorno);
             if(candidato.boundingRect.area() > AREA_MINIMA_RECTANGULOS_DETECCION)
             {
-                autos_detectados.push_back(candidato);
+                autos_detectados_frame.push_back(candidato);
             }
         }
         if(modo_debug)
         {
             cv::Mat autosFrame(deteccionesFrames.size(),CV_8UC3,nider::utilidades::COLOR_NEGRO);
-            for(auto autod : autos_detectados)
+            for(auto autod : autos_detectados_frame)
             {
                 cv::rectangle(autosFrame,autod.boundingRect.tl(),autod.boundingRect.br(),nider::utilidades::COLOR_ROJO);
+                cv::circle(autosFrame,autod.centro,5,nider::utilidades::COLOR_VERDE);
             }
             cv::imshow("Procesar Contornos",autosFrame);
         }
     }
 
+    void detector::ProcesarAutosDetectados()
+    {
+        if(primerLoop)
+        {
+            for(auto autod : autos_detectados_frame)
+            {
+                autos_detectados_movimiento.push_back(autod);
+            }
+            primerLoop = false;
+        }
+        else
+        {
+            //Asignar un id a (autod : autos_detectados_frame) dentro de autos_detectados_movimiento
+        }
+    }
+
     void detector::GenerarOutputFrame()
     {
-        cv::warpPerspective(currentFrame,currentFrame,calibrador_ref.getCalibracionData().transformation_matrix.inv(),currentFrame.size(),CV_WARP_INVERSE_MAP);
-        outputFrame = currentFrame;
-        /*for(auto autod : autos_detectados)
+        cv::warpPerspective(originalCurrentFrame,outputFrame,calibrador_ref.getCalibracionData().transformation_matrix,calibrador_ref.getCalibracionData().output_size);
+        for(auto autod : autos_detectados_frame)
         {
-            std::vector<cv::Point2f> rectPoints;
-            std::vector<cv::Point2f> rectPointsNormal;
-            cv::Point2f p_tl = autod.boundingRect.tl();
-            cv::Point2f p_br = autod.boundingRect.br();
-            rectPoints.push_back(p_tl);
-            rectPoints.push_back(p_br);
-            cv::transform(rectPoints,rectPointsNormal,calibrador_ref.getCalibracionData().transformation_matrix.inv());
-            cv::rectangle(outputFrame,rectPoints.at(0),rectPoints.at(1),nider::utilidades::COLOR_ROJO);
-        }*/
+            if(autod.centro != cv::Point(0,0))
+            {
+                cv::circle(outputFrame,autod.centro,10,nider::utilidades::COLOR_VERDE,CV_FILLED);
+                cv::rectangle(outputFrame,autod.boundingRect.tl(),autod.boundingRect.br(),nider::utilidades::COLOR_ROJO);
+            }
+        }
     }
 
     void detector::TransformacionesMorfologicasDiferenciaFrames(cv::Mat &currentFrame, cv::Mat &nextFrame)

@@ -6,6 +6,7 @@ namespace nider
     const cv::Scalar utilidades::COLOR_NEGRO = cv::Scalar(0, 0, 0);
     const cv::Scalar utilidades::COLOR_BLANCO = cv::Scalar(255, 255, 255);
     const cv::Scalar utilidades::COLOR_ROJO = cv::Scalar(0, 0, 255);
+    const cv::Scalar utilidades::COLOR_VERDE = cv::Scalar(0, 255, 0);
     double utilidades::Calcular_Distancia_Puntos2d(cv::Point2f Q, cv::Point2f P)
     {
         return std::sqrt(std::pow((P-Q).x,2) + std::pow((P-Q).y,2));

@@ -6,6 +6,7 @@
 #include <opencv2/core.hpp>
 #include <opencv2/video.hpp>
 #include <opencv2/highgui.hpp>
+#include <opencv2/calib3d.hpp>
 #include <opencv2/imgproc.hpp>
 #include "Utilidades.hpp"
 
@@ -19,8 +20,9 @@ namespace nider
             bool calibrando;
             cv::Mat frame;
             cv::Mat transformation_matrix;
+            cv::Mat transformation_matrix_inversa;
             std::vector<cv::Point2f> selected_points;
-            cv::Size output_size;
+            cv::Size output_size;;
         };
         void Calibrar();
         CalibracionStruct getCalibracionData();
