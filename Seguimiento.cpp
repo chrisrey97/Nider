@@ -8,6 +8,7 @@ namespace nider
         {
             boundingRect = cv::boundingRect(contorno);
             centro = cv::Point(boundingRect.x + (boundingRect.width)/2, boundingRect.y + (boundingRect.height)/2);
+            muestras = velocidad_frame = velocidad_promedio = velocidad_sum = 0;
         }
 
         bool Auto::operator==(const Auto &a1)

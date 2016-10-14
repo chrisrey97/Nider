@@ -17,12 +17,13 @@ namespace nider
             std::cout << "ERROR: No existe el archivo" << std::endl;
             std::exit(EXIT_FAILURE);
         }
-        fps_target = 1/video_input.get(CV_CAP_PROP_FPS);
         structuringElement3x3 = cv::getStructuringElement(cv::MORPH_RECT,cv::Size(3,3));
         structuringElement5x5 = cv::getStructuringElement(cv::MORPH_RECT,cv::Size(5,5));
         structuringElement7x7 = cv::getStructuringElement(cv::MORPH_RECT,cv::Size(7,7));
         cv::namedWindow("Input",cv::WINDOW_NORMAL);
         cv::namedWindow("Output",cv::WINDOW_NORMAL);
+        fps_video_target = 1/video_input.get(CV_CAP_PROP_FPS);
+        fps_sleep_target = fps_video_target;
         if(modo_debug)
         {
             std::cout << "FPS del Video: " << video_input.get(CV_CAP_PROP_FPS) << std::endl;
@@ -30,6 +31,10 @@ namespace nider
             cv::namedWindow("Contornos 2 (CONVEX_HULLS)",cv::WINDOW_NORMAL);
             cv::namedWindow("Procesar Contornos",cv::WINDOW_NORMAL);
         }
+        /*if(opcion_declarada --sleep_time (???))
+        {
+            fps_sleep_target = 1/opcion;
+        }*/
     }
 
     void detector::LoopPrincipalDeteccion()
@@ -56,7 +61,7 @@ namespace nider
             CalcularVelocidadAutosDetectados();
             GenerarOutputFrame();
             cv::imshow("Output",outputFrame);
-            cv::waitKey(sistema_ref.GetDetectorLoopSleepTime(fps_target));
+            cv::waitKey(sistema_ref.GetDetectorLoopSleepTime(fps_video_target));
             sistema_ref.ImprimirFPS();
         }
     }
@@ -108,12 +113,12 @@ namespace nider
         }
         else
         {
+            //Con ::iterator tenemos un puntero a los valores del vector, por lo que podemos cambiar los valores
             for(std::vector<nider::seguimiento::Auto>::iterator iter = autos_detectados_movimiento.begin(); iter != autos_detectados_movimiento.end(); ++iter)
             {
                 auto& autom = *iter;
                 autom.distancia_previa_al_origen = nider::utilidades::Calcular_Distancia_Punto_Origen(autom.centro);
             }
-            //Con ::iterator tenemos un puntero a los valores del vector, por lo que podemos cambiar los valores
             for(std::vector<nider::seguimiento::Auto>::iterator iter = autos_detectados_movimiento.begin(); iter != autos_detectados_movimiento.end(); ++iter)
             {
                 auto& autom = *iter;
@@ -154,7 +159,13 @@ namespace nider
         for(std::vector<nider::seguimiento::Auto>::iterator iter = autos_detectados_movimiento.begin(); iter != autos_detectados_movimiento.end(); ++iter)
         {
             auto& autom = *iter;
-            autom.velocidad_frame = nider::utilidades::Calcular_Distancia_Puntos2d(autom.centro,autom.prevCentro) / sistema_ref.GetDeltaTimeNOW();
+            autom.velocidad_frame = nider::utilidades::Calcular_Distancia_Puntos2d(autom.centro,autom.prevCentro) / fps_video_target;
+            if(autom.muestras != 0)
+            {
+                autom.velocidad_sum += autom.velocidad_frame;
+            }
+            autom.muestras += 1;
+            autom.velocidad_promedio = (autom.velocidad_sum/autom.muestras);
         }
     }
 
@@ -163,9 +174,12 @@ namespace nider
         cv::warpPerspective(originalCurrentFrame,outputFrame,calibrador_ref.getCalibracionData().transformation_matrix,calibrador_ref.getCalibracionData().output_size);
         for(auto autod : autos_detectados_movimiento)
         {
-            cv::circle(outputFrame,autod.centro,10,nider::utilidades::COLOR_VERDE,CV_FILLED);
+            cv::circle(outputFrame,autod.centro,6,nider::utilidades::COLOR_VERDE,CV_FILLED);
             cv::rectangle(outputFrame,autod.boundingRect.tl(),autod.boundingRect.br(),nider::utilidades::COLOR_ROJO);
-            cv::putText(outputFrame,std::to_string(autod.velocidad_frame)+" px/s",autod.centro,cv::FONT_HERSHEY_PLAIN,2.0,nider::utilidades::COLOR_ROJO,2.0);
+            cv::putText(outputFrame,"Id: "+std::to_string(autod.id),autod.centro,CV_FONT_NORMAL,1.0,nider::utilidades::COLOR_ROJO,2.0);
+            cv::putText(outputFrame,"Vf: "+std::to_string((int)autod.velocidad_frame)+" px/s",autod.centro + cv::Point(0,25),CV_FONT_NORMAL,1.0,nider::utilidades::COLOR_ROJO,2.0);
+            cv::putText(outputFrame,"Vp: "+std::to_string((int)autod.velocidad_promedio)+" px/s",autod.centro + cv::Point(0,50),CV_FONT_NORMAL,1.0,nider::utilidades::COLOR_ROJO,2.0);
+            cv::putText(outputFrame,"Mu: "+std::to_string(autod.muestras),autod.centro + cv::Point(0,75),CV_FONT_NORMAL,1.0,nider::utilidades::COLOR_ROJO,2.0);
         }
     }
 

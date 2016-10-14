@@ -25,7 +25,8 @@ namespace nider
     private:
         bool modo_debug;
         const int AREA_MINIMA_RECTANGULOS_DETECCION = 10000;
-        double fps_target;
+        double fps_video_target;
+        double fps_sleep_target;
         void TransformacionesMorfologicasFrame(cv::Mat &frame);
         void TransformacionesMorfologicasDiferenciaFrames(cv::Mat &currentFrame, cv::Mat &nextFrame);
         void DetectarContornosDiferenciasFrames(cv::Mat frame);
