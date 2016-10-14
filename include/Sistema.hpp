@@ -12,6 +12,7 @@
 
 #include <iostream>
 #include <vector>
+#include <random>
 #include <opencv2/core.hpp>
 #include <opencv2/video.hpp>
 #include <opencv2/highgui.hpp>
@@ -26,6 +27,8 @@ namespace nider
         void ImprimirInfoNider();
         void ImprimirFPS();
         void ActualizarTiempoInicio(int64_t time);
+        double GetDetectorLoopSleepTime(double fps_target);
+        double GetDeltaTimeNOW();
     private:
         int64_t start_time;
     };

@@ -9,5 +9,10 @@ namespace nider
             boundingRect = cv::boundingRect(contorno);
             centro = cv::Point(boundingRect.x + (boundingRect.width)/2, boundingRect.y + (boundingRect.height)/2);
         }
+
+        bool Auto::operator==(const Auto &a1)
+        {
+            return this->centro == a1.centro;
+        }
     }
 }

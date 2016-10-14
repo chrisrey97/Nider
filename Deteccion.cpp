@@ -17,6 +17,7 @@ namespace nider
             std::cout << "ERROR: No existe el archivo" << std::endl;
             std::exit(EXIT_FAILURE);
         }
+        fps_target = 1/video_input.get(CV_CAP_PROP_FPS);
         structuringElement3x3 = cv::getStructuringElement(cv::MORPH_RECT,cv::Size(3,3));
         structuringElement5x5 = cv::getStructuringElement(cv::MORPH_RECT,cv::Size(5,5));
         structuringElement7x7 = cv::getStructuringElement(cv::MORPH_RECT,cv::Size(7,7));
@@ -24,11 +25,11 @@ namespace nider
         cv::namedWindow("Output",cv::WINDOW_NORMAL);
         if(modo_debug)
         {
+            std::cout << "FPS del Video: " << video_input.get(CV_CAP_PROP_FPS) << std::endl;
             cv::namedWindow("Contornos 1 (FIND_CONTOURS)",cv::WINDOW_NORMAL);
             cv::namedWindow("Contornos 2 (CONVEX_HULLS)",cv::WINDOW_NORMAL);
             cv::namedWindow("Procesar Contornos",cv::WINDOW_NORMAL);
         }
-        primerLoop = true;
     }
 
     void detector::LoopPrincipalDeteccion()
@@ -52,9 +53,10 @@ namespace nider
             DetectarContornosDiferenciasFrames(deteccionesFrames.clone());
             ProcesarContornosDetectados();
             ProcesarAutosDetectados();
+            CalcularVelocidadAutosDetectados();
             GenerarOutputFrame();
             cv::imshow("Output",outputFrame);
-            cv::waitKey(DETECTOR_MAIN_LOOP_SLEEP_TIME_FRAME_MS);
+            cv::waitKey(sistema_ref.GetDetectorLoopSleepTime(fps_target));
             sistema_ref.ImprimirFPS();
         }
     }
@@ -92,31 +94,85 @@ namespace nider
 
     void detector::ProcesarAutosDetectados()
     {
-        if(primerLoop)
+        if(autos_detectados_movimiento.empty())
         {
             for(auto autod : autos_detectados_frame)
             {
-                autos_detectados_movimiento.push_back(autod);
+                if(autod.centro != cv::Point(0,0))
+                {
+                    autod.id = GenerarRandomAutoID();
+                    autos_detectados_movimiento.push_back(autod);
+                    autos_detectados_frame.erase(std::remove(autos_detectados_frame.begin(),autos_detectados_frame.end(),autod),autos_detectados_frame.end());
+                }
             }
-            primerLoop = false;
         }
         else
         {
-            //Asignar un id a (autod : autos_detectados_frame) dentro de autos_detectados_movimiento
+            for(std::vector<nider::seguimiento::Auto>::iterator iter = autos_detectados_movimiento.begin(); iter != autos_detectados_movimiento.end(); ++iter)
+            {
+                auto& autom = *iter;
+                autom.distancia_previa_al_origen = nider::utilidades::Calcular_Distancia_Punto_Origen(autom.centro);
+            }
+            //Con ::iterator tenemos un puntero a los valores del vector, por lo que podemos cambiar los valores
+            for(std::vector<nider::seguimiento::Auto>::iterator iter = autos_detectados_movimiento.begin(); iter != autos_detectados_movimiento.end(); ++iter)
+            {
+                auto& autom = *iter;
+                for(auto autod : autos_detectados_frame)
+                {
+                    if(nider::utilidades::Calcular_Distancia_Puntos2d(autom.centro,autod.centro) < nider::utilidades::Calcular_Distancia_Puntos2d(autom.centro,autom.boundingRect.br()))
+                    {
+                        autom.prevCentro = autom.centro;
+                        autom.centro = autod.centro;
+                        autom.boundingRect = autod.boundingRect;
+                        autos_detectados_frame.erase(std::remove(autos_detectados_frame.begin(),autos_detectados_frame.end(),autod),autos_detectados_frame.end());
+                    }
+                }
+                autom.distancia_actual_al_origen = nider::utilidades::Calcular_Distancia_Punto_Origen(autom.centro);
+            }
+            for(auto autod : autos_detectados_frame)
+            {
+                if(autod.centro != cv::Point(0,0))
+                {
+                    autod.id = GenerarRandomAutoID();
+                    autos_detectados_movimiento.push_back(autod);
+                    autos_detectados_frame.erase(std::remove(autos_detectados_frame.begin(),autos_detectados_frame.end(),autod),autos_detectados_frame.end());
+                }
+            }
+        }
+        for(auto autom : autos_detectados_movimiento)
+        {
+            if(autom.distancia_previa_al_origen == autom.distancia_actual_al_origen)
+            {
+                autos_detectados_movimiento.erase(std::remove(autos_detectados_movimiento.begin(),autos_detectados_movimiento.end(),autom),autos_detectados_movimiento.end());
+            }
+        }
+        autos_detectados_frame.clear();
+    }
+
+    void detector::CalcularVelocidadAutosDetectados()
+    {
+        for(std::vector<nider::seguimiento::Auto>::iterator iter = autos_detectados_movimiento.begin(); iter != autos_detectados_movimiento.end(); ++iter)
+        {
+            auto& autom = *iter;
+            autom.velocidad_frame = nider::utilidades::Calcular_Distancia_Puntos2d(autom.centro,autom.prevCentro) / sistema_ref.GetDeltaTimeNOW();
         }
     }
 
     void detector::GenerarOutputFrame()
     {
         cv::warpPerspective(originalCurrentFrame,outputFrame,calibrador_ref.getCalibracionData().transformation_matrix,calibrador_ref.getCalibracionData().output_size);
-        for(auto autod : autos_detectados_frame)
+        for(auto autod : autos_detectados_movimiento)
         {
-            if(autod.centro != cv::Point(0,0))
-            {
-                cv::circle(outputFrame,autod.centro,10,nider::utilidades::COLOR_VERDE,CV_FILLED);
-                cv::rectangle(outputFrame,autod.boundingRect.tl(),autod.boundingRect.br(),nider::utilidades::COLOR_ROJO);
-            }
+            cv::circle(outputFrame,autod.centro,10,nider::utilidades::COLOR_VERDE,CV_FILLED);
+            cv::rectangle(outputFrame,autod.boundingRect.tl(),autod.boundingRect.br(),nider::utilidades::COLOR_ROJO);
+            cv::putText(outputFrame,std::to_string(autod.velocidad_frame)+" px/s",autod.centro,cv::FONT_HERSHEY_PLAIN,2.0,nider::utilidades::COLOR_ROJO,2.0);
         }
+    }
+
+    int detector::GenerarRandomAutoID()
+    {
+        std::uniform_int_distribution<int> rand_dis(1,1000);
+        return rand_dis(random_generator);
     }
 
     void detector::TransformacionesMorfologicasDiferenciaFrames(cv::Mat &currentFrame, cv::Mat &nextFrame)
