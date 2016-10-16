@@ -1,16 +1,8 @@
-# Nider [![Build Status](https://travis-ci.org/capgadsx/Nider.svg?branch=master)](https://travis-ci.org/capgadsx/Nider)
+# Nider [![Build Status](https://travis-ci.org/capgadsx/Nider.svg?branch=master)](https://travis-ci.org/capgadsx/Nider) [![License](https://img.shields.io/badge/License-Apache%20v2-blue.svg)](https://github.com/capgadsx/Nider/blob/master/LICENCE.md)
 
 ## Construir Nider
 
 ### Dependencias
-
-#### CUDA (Opcional)
-
-1. Asegúrate de que usas la última versión de los drivers oficiales de nvidia **(version >= 365.35)**
-
-2. Descarga el [CUDA Toolkit 8 ](https://developer.nvidia.com/cuda-downloads)
-
-3. Ejecuta el fichero descargado y sigue las instrucciones de instalación que se muestran en la consola
 
 #### OpenCV
 
@@ -22,7 +14,6 @@
 
 3. Configura OpenCV
 	* Ejecuta en el directorio de OpenCV el siguiente comando:
-	* Opcional: Si vas a usar CUDA añade al comando la siguiente *flag:* **-DWITH_CUDA=ON**
 
       ``cmake -DWITH_IPP=OFF -DBUILD_EXAMPLES=OFF -DBUILD_TESTS=OFF -DBUILD_PERF_TESTS=OFF -DBUILD_opencv_python2=OFF -DBUILD_opencv_python3=OFF``
 
@@ -42,7 +33,6 @@
 2. Ingresa al directorio *build* y ejecuta los siguientes comandos:
 
       1. ``cmake ../``
-        * Opcional: Si vas a usar CUDA añade al anterior comando la siguiente *flag:* **-DWITH_CUDA=ON**
 
       2. ``make``
 
