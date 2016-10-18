@@ -50,7 +50,7 @@ namespace nider
                 std::cout << "\nFin del Video" << std::endl;
                 break;
             }
-            originalCurrentFrame = currentFrame;
+            outputFrame = currentFrame;
             cv::imshow("Input",currentFrame);
             TransformacionesMorfologicasFrame(currentFrame);
             TransformacionesMorfologicasFrame(nextFrame);
@@ -61,7 +61,7 @@ namespace nider
             CalcularVelocidadAutosDetectados();
             GenerarOutputFrame();
             cv::imshow("Output",outputFrame);
-            cv::waitKey(sistema_ref.GetDetectorLoopSleepTime(fps_video_target));
+            cv::waitKey(sistema_ref.GetDetectorLoopSleepTime(fps_sleep_target));
             sistema_ref.ImprimirFPS();
         }
     }
@@ -95,6 +95,11 @@ namespace nider
             }
             cv::imshow("Procesar Contornos",autosFrame);
         }
+    }
+
+    void detector::ProcesarAlSalir(nider::seguimiento::Auto autom)
+    {
+        std::cout << "Id: " << autom.id << " Vpf: " << autom.velocidad_promedio << "px/s (N: " << autom.muestras << ")" << std::endl;
     }
 
     void detector::ProcesarAutosDetectados()
@@ -171,15 +176,25 @@ namespace nider
 
     void detector::GenerarOutputFrame()
     {
-        cv::warpPerspective(originalCurrentFrame,outputFrame,calibrador_ref.getCalibracionData().transformation_matrix,calibrador_ref.getCalibracionData().output_size);
         for(auto autod : autos_detectados_movimiento)
         {
-            cv::circle(outputFrame,autod.centro,6,nider::utilidades::COLOR_VERDE,CV_FILLED);
-            cv::rectangle(outputFrame,autod.boundingRect.tl(),autod.boundingRect.br(),nider::utilidades::COLOR_ROJO);
-            cv::putText(outputFrame,"Id: "+std::to_string(autod.id),autod.centro,CV_FONT_NORMAL,1.0,nider::utilidades::COLOR_ROJO,2.0);
-            cv::putText(outputFrame,"Vf: "+std::to_string((int)autod.velocidad_frame)+" px/s",autod.centro + cv::Point(0,25),CV_FONT_NORMAL,1.0,nider::utilidades::COLOR_ROJO,2.0);
-            cv::putText(outputFrame,"Vp: "+std::to_string((int)autod.velocidad_promedio)+" px/s",autod.centro + cv::Point(0,50),CV_FONT_NORMAL,1.0,nider::utilidades::COLOR_ROJO,2.0);
-            cv::putText(outputFrame,"Mu: "+std::to_string(autod.muestras),autod.centro + cv::Point(0,75),CV_FONT_NORMAL,1.0,nider::utilidades::COLOR_ROJO,2.0);
+            std::vector<cv::Point2f> inputs;
+            std::vector<cv::Point2f> outputs;
+            inputs.push_back(autod.boundingRect.tl());
+            inputs.push_back(cv::Point2f(autod.boundingRect.tl().x + autod.boundingRect.width,autod.boundingRect.tl().y));
+            inputs.push_back(autod.boundingRect.br());
+            inputs.push_back(cv::Point2f(autod.boundingRect.br().x - autod.boundingRect.width,autod.boundingRect.br().y));
+            inputs.push_back(autod.centro);
+            cv::perspectiveTransform(inputs,outputs,calibrador_ref.getCalibracionData().transformation_matrix_inversa);
+            cv::line(outputFrame,outputs.at(0),outputs.at(1),nider::utilidades::COLOR_VERDE);
+            cv::line(outputFrame,outputs.at(1),outputs.at(2),nider::utilidades::COLOR_VERDE);
+            cv::line(outputFrame,outputs.at(2),outputs.at(3),nider::utilidades::COLOR_VERDE);
+            cv::line(outputFrame,outputs.at(3),outputs.at(0),nider::utilidades::COLOR_VERDE);
+            cv::circle(outputFrame,outputs.at(4),6,nider::utilidades::COLOR_VERDE,CV_FILLED);
+            //cv::putText(outputFrame,"Id: "+std::to_string(autod.id),outputs.at(4),CV_FONT_NORMAL,1.0,nider::utilidades::COLOR_ROJO,2.0);
+            cv::putText(outputFrame,"Vf: "+std::to_string((int)autod.velocidad_frame)+" px/s",outputs.at(4) + cv::Point2f(0,25),CV_FONT_NORMAL,1.0,nider::utilidades::COLOR_ROJO,2.0);
+            //cv::putText(outputFrame,"Vp: "+std::to_string((int)autod.velocidad_promedio)+" px/s",outputs.at(4) + cv::Point2f(0,50),CV_FONT_NORMAL,1.0,nider::utilidades::COLOR_ROJO,2.0);
+            //cv::putText(outputFrame,"Mu: "+std::to_string(autod.muestras),outputs.at(4) + cv::Point2f(0,75),CV_FONT_NORMAL,1.0,nider::utilidades::COLOR_ROJO,2.0);
         }
     }
 

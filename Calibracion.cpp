@@ -76,6 +76,8 @@ namespace nider
         output_coord.push_back(cv::Point(*ancho,*alto));
         output_coord.push_back(cv::Point(0,*alto));
         data.transformation_matrix = cv::getPerspectiveTransform(data.selected_points.data(),output_coord.data());
+        //data.transformation_matrix_inversa = cv::getPerspectiveTransform(output_coord.data(),data.selected_points.data());
+        data.transformation_matrix_inversa = data.transformation_matrix.inv();
         data.output_size = cv::Size(*ancho,*alto);
     }
 

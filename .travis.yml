@@ -37,7 +37,7 @@ install:
 script:
   - mkdir build
   - cd build
-  - cmake ../ -DWITH_CUDA=OFF
+  - cmake ../
   - make -j2
 branches:
   only:

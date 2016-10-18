@@ -16,6 +16,7 @@ namespace nider
     {
         class Auto;
     }
+    //Clase
     class detector
     {
     public:
@@ -34,6 +35,7 @@ namespace nider
         void ProcesarAutosDetectados();
         void GenerarOutputFrame();
         void CalcularVelocidadAutosDetectados();
+        void ProcesarAlSalir(nider::seguimiento::Auto);
         int GenerarRandomAutoID();
         nider::sistema &sistema_ref;
         nider::calibracion &calibrador_ref;

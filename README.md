@@ -1,4 +1,4 @@
-# Nider [![Build Status](https://travis-ci.org/capgadsx/Nider.svg?branch=master)](https://travis-ci.org/capgadsx/Nider) [![License](https://img.shields.io/badge/License-Apache%20v2-blue.svg)](https://github.com/capgadsx/Nider/blob/master/LICENCE.md)
+# Nider [![Build Status](https://travis-ci.org/capgadsx/nider.svg?branch=master)](https://travis-ci.org/capgadsx/nider) [![License](https://img.shields.io/badge/License-Apache%20v2-blue.svg)](https://github.com/capgadsx/nider/blob/master/LICENCE.md)
 
 ## Construir Nider
 
