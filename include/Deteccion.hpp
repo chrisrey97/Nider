@@ -37,6 +37,7 @@ namespace nider
         void CalcularVelocidadAutosDetectados();
         void ProcesarAlSalir(nider::seguimiento::Auto);
         int GenerarRandomAutoID();
+        std::string ObtenerFechaNombreImagen(int id);
         nider::sistema &sistema_ref;
         nider::calibracion &calibrador_ref;
         std::string video_path;

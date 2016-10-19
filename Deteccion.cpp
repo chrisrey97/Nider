@@ -22,6 +22,7 @@ namespace nider
         structuringElement7x7 = cv::getStructuringElement(cv::MORPH_RECT,cv::Size(7,7));
         cv::namedWindow("Input",cv::WINDOW_NORMAL);
         cv::namedWindow("Output",cv::WINDOW_NORMAL);
+        cv::namedWindow("Ultimo",cv::WINDOW_NORMAL);
         fps_video_target = 1/video_input.get(CV_CAP_PROP_FPS);
         fps_sleep_target = fps_video_target;
         if(modo_debug)
@@ -50,7 +51,8 @@ namespace nider
                 std::cout << "\nFin del Video" << std::endl;
                 break;
             }
-            outputFrame = currentFrame;
+            currentFrame.copyTo(originalCurrentFrame);
+            originalCurrentFrame.copyTo(outputFrame);
             cv::imshow("Input",currentFrame);
             TransformacionesMorfologicasFrame(currentFrame);
             TransformacionesMorfologicasFrame(nextFrame);
@@ -61,8 +63,9 @@ namespace nider
             CalcularVelocidadAutosDetectados();
             GenerarOutputFrame();
             cv::imshow("Output",outputFrame);
-            cv::waitKey(sistema_ref.GetDetectorLoopSleepTime(fps_sleep_target));
-            sistema_ref.ImprimirFPS();
+            //cv::waitKey(sistema_ref.GetDetectorLoopSleepTime(fps_sleep_target));
+            cv::waitKey(1000);
+            //sistema_ref.ImprimirFPS();
         }
     }
 
@@ -95,11 +98,6 @@ namespace nider
             }
             cv::imshow("Procesar Contornos",autosFrame);
         }
-    }
-
-    void detector::ProcesarAlSalir(nider::seguimiento::Auto autom)
-    {
-        std::cout << "Id: " << autom.id << " Vpf: " << autom.velocidad_promedio << "px/s (N: " << autom.muestras << ")" << std::endl;
     }
 
     void detector::ProcesarAutosDetectados()
@@ -153,6 +151,7 @@ namespace nider
         {
             if(autom.distancia_previa_al_origen == autom.distancia_actual_al_origen)
             {
+                ProcesarAlSalir(autom);
                 autos_detectados_movimiento.erase(std::remove(autos_detectados_movimiento.begin(),autos_detectados_movimiento.end(),autom),autos_detectados_movimiento.end());
             }
         }
@@ -171,6 +170,34 @@ namespace nider
             }
             autom.muestras += 1;
             autom.velocidad_promedio = (autom.velocidad_sum/autom.muestras);
+            std::vector<cv::Point2f> inputs;
+            inputs.push_back(autom.boundingRect.tl());
+            inputs.push_back(cv::Point2f(autom.boundingRect.tl().x + autom.boundingRect.width,autom.boundingRect.tl().y));
+            inputs.push_back(autom.boundingRect.br());
+            inputs.push_back(cv::Point2f(autom.boundingRect.br().x - autom.boundingRect.width,autom.boundingRect.br().y));
+            inputs.push_back(autom.centro);
+            cv::perspectiveTransform(inputs,autom.contornoNormal,calibrador_ref.getCalibracionData().transformation_matrix_inversa);
+            autom.boundingRectNormal = cv::minAreaRect(autom.contornoNormal).boundingRect();
+            if(autom.boundingRectNormal.area() > autom.boundingRectNormalMax.area())
+            {
+                autom.boundingRectNormalMax = autom.boundingRectNormal;
+                cv::Rect MatRect(0, 0, originalCurrentFrame.cols, originalCurrentFrame.rows);
+                bool inside = (autom.boundingRectNormalMax & MatRect) == autom.boundingRectNormalMax;
+                if(inside)
+                {
+                    autom.ultimaImagen = cv::Mat(originalCurrentFrame,autom.boundingRectNormalMax);
+                }
+            }
+        }
+    }
+
+    void detector::ProcesarAlSalir(nider::seguimiento::Auto autom)
+    {
+        if(!(autom.velocidad_promedio == 0 || autom.muestras <= 6))
+        {
+            //std::cout << "Se elimina [Id: " << autom.id << " Vpf: " << autom.velocidad_promedio << "px/s (N: " << autom.muestras << ")]" << std::endl;
+            cv::imshow("Ultimo",autom.ultimaImagen);
+            cv::imwrite(ObtenerFechaNombreImagen(autom.id),autom.ultimaImagen);
         }
     }
 
@@ -178,24 +205,22 @@ namespace nider
     {
         for(auto autod : autos_detectados_movimiento)
         {
-            std::vector<cv::Point2f> inputs;
-            std::vector<cv::Point2f> outputs;
-            inputs.push_back(autod.boundingRect.tl());
-            inputs.push_back(cv::Point2f(autod.boundingRect.tl().x + autod.boundingRect.width,autod.boundingRect.tl().y));
-            inputs.push_back(autod.boundingRect.br());
-            inputs.push_back(cv::Point2f(autod.boundingRect.br().x - autod.boundingRect.width,autod.boundingRect.br().y));
-            inputs.push_back(autod.centro);
-            cv::perspectiveTransform(inputs,outputs,calibrador_ref.getCalibracionData().transformation_matrix_inversa);
-            cv::line(outputFrame,outputs.at(0),outputs.at(1),nider::utilidades::COLOR_VERDE);
-            cv::line(outputFrame,outputs.at(1),outputs.at(2),nider::utilidades::COLOR_VERDE);
-            cv::line(outputFrame,outputs.at(2),outputs.at(3),nider::utilidades::COLOR_VERDE);
-            cv::line(outputFrame,outputs.at(3),outputs.at(0),nider::utilidades::COLOR_VERDE);
-            cv::circle(outputFrame,outputs.at(4),6,nider::utilidades::COLOR_VERDE,CV_FILLED);
-            //cv::putText(outputFrame,"Id: "+std::to_string(autod.id),outputs.at(4),CV_FONT_NORMAL,1.0,nider::utilidades::COLOR_ROJO,2.0);
-            cv::putText(outputFrame,"Vf: "+std::to_string((int)autod.velocidad_frame)+" px/s",outputs.at(4) + cv::Point2f(0,25),CV_FONT_NORMAL,1.0,nider::utilidades::COLOR_ROJO,2.0);
+            cv::circle(outputFrame,autod.contornoNormal.at(4),6,nider::utilidades::COLOR_VERDE,CV_FILLED);
+            cv::putText(outputFrame,"Id: "+std::to_string(autod.id),autod.contornoNormal.at(4) + cv::Point2f(0,25),CV_FONT_NORMAL,1.0,nider::utilidades::COLOR_ROJO,2.0);
+            cv::putText(outputFrame,"Vf: "+std::to_string((int)autod.velocidad_frame)+" px/s",autod.contornoNormal.at(4),CV_FONT_NORMAL,1.0,nider::utilidades::COLOR_ROJO,2.0);
+            cv::rectangle(outputFrame,autod.boundingRectNormal,nider::utilidades::COLOR_ROJO);
             //cv::putText(outputFrame,"Vp: "+std::to_string((int)autod.velocidad_promedio)+" px/s",outputs.at(4) + cv::Point2f(0,50),CV_FONT_NORMAL,1.0,nider::utilidades::COLOR_ROJO,2.0);
             //cv::putText(outputFrame,"Mu: "+std::to_string(autod.muestras),outputs.at(4) + cv::Point2f(0,75),CV_FONT_NORMAL,1.0,nider::utilidades::COLOR_ROJO,2.0);
         }
+    }
+
+    std::string detector::ObtenerFechaNombreImagen(int id)
+    {
+        std::stringstream stream;
+        auto time_t = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+        const std::string format = "%Y%m%d_%H%M%S_"+std::to_string(id)+".png";
+        stream << std::put_time(std::localtime(&time_t),format.c_str());
+        return stream.str();
     }
 
     int detector::GenerarRandomAutoID()

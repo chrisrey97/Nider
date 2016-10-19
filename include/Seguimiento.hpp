@@ -14,8 +14,12 @@ namespace nider
             Auto(std::vector<cv::Point> contornos);
             int id;
             cv::Rect boundingRect;
+            cv::Rect boundingRectNormal;
+            cv::Rect boundingRectNormalMax;
             cv::Point centro;
             cv::Point prevCentro;
+            cv::Mat ultimaImagen;
+            std::vector<cv::Point2f> contornoNormal;
             double distancia_actual_al_origen;
             double distancia_previa_al_origen;
             double velocidad_frame;
