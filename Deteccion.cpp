@@ -22,7 +22,7 @@ namespace nider
         structuringElement7x7 = cv::getStructuringElement(cv::MORPH_RECT,cv::Size(7,7));
         cv::namedWindow("Input",cv::WINDOW_NORMAL);
         cv::namedWindow("Output",cv::WINDOW_NORMAL);
-        cv::namedWindow("Ultimo",cv::WINDOW_NORMAL);
+        //cv::namedWindow("Ultimo",cv::WINDOW_NORMAL);
         fps_video_target = 1/video_input.get(CV_CAP_PROP_FPS);
         fps_sleep_target = fps_video_target;
         if(modo_debug)
@@ -163,6 +163,7 @@ namespace nider
         {
             auto& autom = *iter;
             autom.velocidad_frame = nider::utilidades::Calcular_Distancia_Puntos2d(autom.centro,autom.prevCentro) / fps_video_target;
+            autom.velocidad_frame = autom.velocidad_frame * (calibrador_ref.getCalibracionData().distancia_conocida/calibrador_ref.getCalibracionData().output_size.height) * 3.6;
             if(autom.muestras != 0)
             {
                 autom.velocidad_sum += autom.velocidad_frame;
@@ -192,7 +193,7 @@ namespace nider
         if(!(autom.velocidad_promedio == 0 || autom.muestras <= 6))
         {
             //std::cout << "Se elimina [Id: " << autom.id << " Vpf: " << autom.velocidad_promedio << "px/s (N: " << autom.muestras << ")]" << std::endl;
-            cv::imshow("Ultimo",autom.ultimaImagen);
+            //cv::imshow("Ultimo",autom.ultimaImagen);
             cv::imwrite("outputs/"+ObtenerFechaNombreImagen(autom.id),autom.ultimaImagen);
         }
     }
@@ -203,10 +204,8 @@ namespace nider
         {
             cv::circle(outputFrame,autod.contornoNormal.at(4),6,nider::utilidades::COLOR_VERDE,CV_FILLED);
             cv::putText(outputFrame,"Id: "+std::to_string(autod.id),autod.contornoNormal.at(4) + cv::Point2f(0,25),CV_FONT_NORMAL,1.0,nider::utilidades::COLOR_ROJO,2.0);
-            cv::putText(outputFrame,"Vf: "+std::to_string((int)autod.velocidad_frame)+" px/s",autod.contornoNormal.at(4),CV_FONT_NORMAL,1.0,nider::utilidades::COLOR_ROJO,2.0);
+            cv::putText(outputFrame,"Vp: "+std::to_string((int)autod.velocidad_promedio)+" km/h",autod.contornoNormal.at(4),CV_FONT_NORMAL,1.0,nider::utilidades::COLOR_ROJO,2.0);
             cv::rectangle(outputFrame,autod.boundingRectNormal,nider::utilidades::COLOR_ROJO);
-            //cv::putText(outputFrame,"Vp: "+std::to_string((int)autod.velocidad_promedio)+" px/s",outputs.at(4) + cv::Point2f(0,50),CV_FONT_NORMAL,1.0,nider::utilidades::COLOR_ROJO,2.0);
-            //cv::putText(outputFrame,"Mu: "+std::to_string(autod.muestras),outputs.at(4) + cv::Point2f(0,75),CV_FONT_NORMAL,1.0,nider::utilidades::COLOR_ROJO,2.0);
         }
     }
 

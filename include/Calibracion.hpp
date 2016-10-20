@@ -22,7 +22,8 @@ namespace nider
             cv::Mat transformation_matrix;
             cv::Mat transformation_matrix_inversa;
             std::vector<cv::Point2f> selected_points;
-            cv::Size output_size;;
+            cv::Size output_size;
+            double distancia_conocida;
         };
         void Calibrar();
         CalibracionStruct getCalibracionData();
