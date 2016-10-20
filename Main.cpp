@@ -4,6 +4,7 @@
 Faltan (Aparte)
 Opcion para limitar los fps sin recompilar
 Opcion para cambiar el archivo
+En video_test 3.25m (suposicion) * 7 (autos) =  22.75m  distancia entre la camara y la union de las barreras de contencion
 */
 
 int main(int argc, char const *argv[])

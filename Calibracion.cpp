@@ -34,6 +34,8 @@ namespace nider
         cv::destroyWindow("Calibrar");
         Ordenar_Puntos_SentidoReloj(data.selected_points);
         Calcular_Transformation_Matrix(data);
+        std::cout << "Ingrese la distancia conocida: ";
+        std::cin >> data.distancia_conocida;
         CalibracionData = data;
     }
 
