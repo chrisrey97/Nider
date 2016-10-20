@@ -13,9 +13,13 @@
 #include <iostream>
 #include <vector>
 #include <random>
+#include <chrono>
+#include <ctime>
+#include <iomanip>
 #include <opencv2/core.hpp>
 #include <opencv2/video.hpp>
 #include <opencv2/highgui.hpp>
+#include <opencv2/imgproc.hpp>
 #include "Calibracion.hpp"
 #include "Deteccion.hpp"
 
