@@ -63,9 +63,8 @@ namespace nider
             CalcularVelocidadAutosDetectados();
             GenerarOutputFrame();
             cv::imshow("Output",outputFrame);
-            //cv::waitKey(sistema_ref.GetDetectorLoopSleepTime(fps_sleep_target));
-            cv::waitKey(1000);
-            //sistema_ref.ImprimirFPS();
+            cv::waitKey(sistema_ref.GetDetectorLoopSleepTime(fps_sleep_target));
+            sistema_ref.ImprimirFPS();
         }
     }
 
@@ -178,15 +177,12 @@ namespace nider
             inputs.push_back(autom.centro);
             cv::perspectiveTransform(inputs,autom.contornoNormal,calibrador_ref.getCalibracionData().transformation_matrix_inversa);
             autom.boundingRectNormal = cv::minAreaRect(autom.contornoNormal).boundingRect();
-            if(autom.boundingRectNormal.area() > autom.boundingRectNormalMax.area())
+            cv::Rect MatRect(0, 0, originalCurrentFrame.cols, originalCurrentFrame.rows);
+            bool inside = (autom.boundingRectNormal & MatRect) == autom.boundingRectNormal;
+            if((autom.boundingRectNormal.area() > autom.boundingRectNormalMax.area()) && inside)
             {
                 autom.boundingRectNormalMax = autom.boundingRectNormal;
-                cv::Rect MatRect(0, 0, originalCurrentFrame.cols, originalCurrentFrame.rows);
-                bool inside = (autom.boundingRectNormalMax & MatRect) == autom.boundingRectNormalMax;
-                if(inside)
-                {
-                    autom.ultimaImagen = cv::Mat(originalCurrentFrame,autom.boundingRectNormalMax);
-                }
+                autom.ultimaImagen = cv::Mat(originalCurrentFrame,autom.boundingRectNormalMax);
             }
         }
     }
@@ -197,7 +193,7 @@ namespace nider
         {
             //std::cout << "Se elimina [Id: " << autom.id << " Vpf: " << autom.velocidad_promedio << "px/s (N: " << autom.muestras << ")]" << std::endl;
             cv::imshow("Ultimo",autom.ultimaImagen);
-            cv::imwrite(ObtenerFechaNombreImagen(autom.id),autom.ultimaImagen);
+            cv::imwrite("outputs/"+ObtenerFechaNombreImagen(autom.id),autom.ultimaImagen);
         }
     }
 
