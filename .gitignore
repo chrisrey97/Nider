@@ -29,5 +29,5 @@
 *.app
 
 # Proyecto
-build/
-data/
+/build/
+/data/
