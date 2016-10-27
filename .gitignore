@@ -31,3 +31,5 @@
 # Proyecto
 /build/
 /data/
+/clasificacion/train_data
+/clasificacion/sin_clasificar
