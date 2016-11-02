@@ -31,5 +31,6 @@
 # Proyecto
 /build/
 /data/
-/clasificacion/train_data
-/clasificacion/sin_clasificar
+/clasificacion/training_data
+/clasificacion/training_checkpoints
+/clasificacion/inception/bottlenecks
