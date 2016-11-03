@@ -1,3 +1,4 @@
+#include "ClienteSocket.hpp"
 #include "Sistema.hpp"
 
 /*
@@ -9,13 +10,15 @@ En video_test 3.25m (suposicion) * 7 (autos) =  22.75m  distancia entre la camar
 
 int main(int argc, char const *argv[])
 {
-    std::string video_path = "../data/video_test.mp4";
+    std::string camara_alta = "../deteccion/data/corregido_alta.mp4";
+    std::string camara_baja = "../deteccion/data/corregido_baja2.mp4";
     bool debug = false;
     nider::sistema sistema;
+    nider::clientesocket socket;
     sistema.ImprimirInfoNider();
-    nider::calibracion calibrador(video_path);
+    nider::calibracion calibrador(camara_alta);
     calibrador.Calibrar();
-    nider::detector detector(debug,video_path,sistema,calibrador);
+    nider::detector detector(debug,camara_alta,camara_baja,sistema,calibrador,socket);
     detector.Iniciar();
     detector.LoopPrincipalDeteccion();
     return EXIT_SUCCESS;

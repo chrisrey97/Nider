@@ -22,6 +22,7 @@
 #include <opencv2/imgproc.hpp>
 #include "Calibracion.hpp"
 #include "Deteccion.hpp"
+#include "ClienteSocket.hpp"
 
 namespace nider
 {

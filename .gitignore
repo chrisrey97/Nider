@@ -30,7 +30,7 @@
 
 # Proyecto
 /build/
-/data/
+/deteccion/data/
 /clasificacion/training_data
 /clasificacion/training_checkpoints
 /clasificacion/inception/bottlenecks

@@ -2,16 +2,18 @@
 
 namespace nider
 {
-    detector::detector(bool debug, std::string video_p, nider::sistema &sistema_r, nider::calibracion &calibrador_r) : sistema_ref(sistema_r), calibrador_ref(calibrador_r)
+    detector::detector(bool debug, std::string camara_alta, std::string camara_baja, nider::sistema &sistema_r, nider::calibracion &calibrador_r, nider::clientesocket &cliente) : sistema_ref(sistema_r), calibrador_ref(calibrador_r), cliente(cliente)
     {
-        video_path = video_p;
+        video_path_alta = camara_alta;
+        video_path_baja = camara_baja;
         modo_debug = debug;
     }
 
     void detector::Iniciar()
     {
-        video_input.open(video_path);
-        if(!video_input.isOpened())
+        video_input.open(video_path_alta);
+        video_input_baja.open(video_path_baja);
+        if(!video_input.isOpened() || !video_input_baja.isOpened())
         {
             video_input.release();
             std::cout << "ERROR: No existe el archivo" << std::endl;
@@ -22,6 +24,8 @@ namespace nider
         structuringElement7x7 = cv::getStructuringElement(cv::MORPH_RECT,cv::Size(7,7));
         cv::namedWindow("Input",cv::WINDOW_NORMAL);
         cv::namedWindow("Output",cv::WINDOW_NORMAL);
+        cv::namedWindow("Input BAJA",cv::WINDOW_NORMAL);
+        cv::namedWindow("ULTIMA BAJA",cv::WINDOW_NORMAL);
         //cv::namedWindow("Ultimo",cv::WINDOW_NORMAL);
         fps_video_target = 1/video_input.get(CV_CAP_PROP_FPS);
         fps_sleep_target = fps_video_target;
@@ -45,6 +49,8 @@ namespace nider
             sistema_ref.ActualizarTiempoInicio(cv::getTickCount());
             video_input >> currentFrame;
             video_input >> nextFrame;
+            video_input_baja >> currentFrame_baja;
+            video_input_baja >> currentFrame_baja;
             if(nextFrame.empty())
             {
                 video_input.release();
@@ -54,6 +60,7 @@ namespace nider
             currentFrame.copyTo(originalCurrentFrame);
             originalCurrentFrame.copyTo(outputFrame);
             cv::imshow("Input",currentFrame);
+            cv::imshow("Input BAJA",currentFrame_baja);
             TransformacionesMorfologicasFrame(currentFrame);
             TransformacionesMorfologicasFrame(nextFrame);
             TransformacionesMorfologicasDiferenciaFrames(currentFrame,nextFrame);
@@ -63,7 +70,8 @@ namespace nider
             CalcularVelocidadAutosDetectados();
             GenerarOutputFrame();
             cv::imshow("Output",outputFrame);
-            cv::waitKey(sistema_ref.GetDetectorLoopSleepTime(fps_sleep_target));
+            cv::waitKey(500);
+            //cv::waitKey(sistema_ref.GetDetectorLoopSleepTime(fps_sleep_target));
             sistema_ref.ImprimirFPS();
         }
     }
@@ -190,11 +198,15 @@ namespace nider
 
     void detector::ProcesarAlSalir(nider::seguimiento::Auto autom)
     {
-        if(!(autom.velocidad_promedio == 0 || autom.muestras <= 6))
+        if(!(autom.velocidad_promedio == 0 || autom.muestras <= 4))
         {
             //std::cout << "Se elimina [Id: " << autom.id << " Vpf: " << autom.velocidad_promedio << "px/s (N: " << autom.muestras << ")]" << std::endl;
             //cv::imshow("Ultimo",autom.ultimaImagen);
-            cv::imwrite("outputs/"+ObtenerFechaNombreImagen(autom.id),autom.ultimaImagen);
+            //cv::imwrite("outputs/"+ObtenerFechaNombreImagen(autom.id),currentFrame_baja);
+            cv::imshow("ULTIMA BAJA", currentFrame_baja);
+            std::vector<uchar> buffer;
+            cv::imencode(".jpg",currentFrame_baja, buffer);
+            cliente.send("localhost", "7777", std::string(buffer.begin(), buffer.end()));
         }
     }
 

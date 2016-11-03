@@ -1,6 +1,7 @@
 #ifndef DETECCION_HEADER
 #define DETECCION_HEADER
 
+#include "ClienteSocket.hpp"
 #include "Sistema.hpp"
 #include "Utilidades.hpp"
 #include "Seguimiento.hpp"
@@ -20,7 +21,7 @@ namespace nider
     class detector
     {
     public:
-        detector(bool debug, std::string video_path, nider::sistema &sistema_ref, nider::calibracion &calibrador_ref);
+        detector(bool debug, std::string camara_alta, std::string camara_baja, nider::sistema &sistema_ref, nider::calibracion &calibrador_ref, nider::clientesocket &cliente);
         void Iniciar();
         void LoopPrincipalDeteccion();
     private:
@@ -40,15 +41,19 @@ namespace nider
         std::string ObtenerFechaNombreImagen(int id);
         nider::sistema &sistema_ref;
         nider::calibracion &calibrador_ref;
-        std::string video_path;
+        nider::clientesocket &cliente;
+        std::string video_path_alta;
+        std::string video_path_baja;
         std::vector<std::vector<cv::Point>> contornos;
         std::vector<std::vector<cv::Point>> convex_hulls;
         std::vector<nider::seguimiento::Auto> autos_detectados_frame;
         std::vector<nider::seguimiento::Auto> autos_detectados_movimiento;
         std::default_random_engine random_generator;
         cv::VideoCapture video_input;
+        cv::VideoCapture video_input_baja;
         cv::Mat originalCurrentFrame;
         cv::Mat currentFrame;
+        cv::Mat currentFrame_baja;
         cv::Mat nextFrame;
         cv::Mat deteccionesFrames;
         cv::Mat outputFrame;
