@@ -15,16 +15,36 @@
 3. Configura OpenCV
 	* Ejecuta en el directorio de OpenCV el siguiente comando:
 
-      ``cmake -DWITH_IPP=OFF -DBUILD_EXAMPLES=OFF -DBUILD_TESTS=OFF -DBUILD_PERF_TESTS=OFF -DBUILD_opencv_python2=OFF -DBUILD_opencv_python3=OFF``
+      ``cmake -DWITH_IPP=OFF -DBUILD_EXAMPLES=OFF -DBUILD_TESTS=OFF -DBUILD_PERF_TESTS=OFF``
 
 4. Compila e Instala OpenCV
   * Ejecuta en el directorio de OpenCV el siguiente comando:
 
       ``make && sudo make install``
 
-## Obtener Nider
+#### Tensorflow
 
-1. Clona el [repositorio](https://github.com/capgadsx/nider) desde Github
+1. Instala las dependencias:
+
+    ``sudo pip install --upgrade pip``
+
+    ``sudo pip install numpy six protobuf``
+
+    Opcional: Si quieres usar la aceleracion por GPU, es necesario instalar CUDA Toolkit v7.5 y cuDNN v5
+
+2. Elige la version a instalar:
+
+    * Linux 64bits, CPU:
+
+      ``export TF_BINARY_URL=https://storage.googleapis.com/tensorflow/linux/cpu/tensorflow-0.11.0rc1-cp27-none-linux_x86_64.whl``
+
+    * Linux 64bits, CPU+GPU:
+
+      ``export TF_BINARY_URL=https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow-0.11.0rc1-cp27-none-linux_x86_64.whl``
+
+3. Instala Tensorflow:
+
+    ``sudo pip install --upgrade $TF_BINARY_URL``
 
 ## Compilar Nider
 

@@ -34,3 +34,4 @@
 /clasificacion/training_data
 /clasificacion/training_checkpoints
 /clasificacion/inception/bottlenecks
+*.tgz

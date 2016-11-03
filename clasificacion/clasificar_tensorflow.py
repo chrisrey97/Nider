@@ -1,3 +1,13 @@
+'''
+2016-11-02 22:23:17.998211: Step 3999: Train accuracy = 96.0%
+2016-11-02 22:23:17.998277: Step 3999: Cross entropy = 0.155460
+2016-11-02 22:23:18.058717: Step 3999: Validation accuracy = 93.0%
+Final test accuracy = 96.2%
+Converted 2 variables to const ops.
+
+2/11/2016 - 22:25 - 96.2%  Acc - Escala de Grises
+'''
+
 import cv2
 import numpy
 import argparse
@@ -12,7 +22,7 @@ args = argparse.ArgumentParser()
 args.add_argument('-i', '--imagen', required=True)
 args = vars(args.parse_args())
 cv2.namedWindow("Test",cv2.WINDOW_NORMAL)
-imagen = cv2.imread(args["imagen"])
+imagen = cv2.cvtColor(cv2.imread(args["imagen"]),cv2.COLOR_BGR2GRAY)
 window_size = (imagen.shape[0]/2,imagen.shape[1]/8)
 step_px = 120
 
@@ -30,9 +40,8 @@ with tensorflow.Session() as sess:
         if (ventana.shape[0] != window_size[1] or ventana.shape[1] != window_size[0]):
             continue
         cv2.imshow("Test",ventana)
-        cv2.waitKey(1)
         ventana_data = numpy.array(cv2.imencode('.jpeg', ventana)[1]).tostring()
-        predictions = sess.run(softmax_tensor, {'DecodeJpeg/contents:0': ventana_data})
+        predictions = sess.run(softmax_tensor, feed_dict={'DecodeJpeg/contents:0': ventana_data})
         top_predictions = predictions[0].argsort()[-len(predictions[0]):][::-1]
         for node_id in top_predictions:
             human_string = labels[node_id]
